@@ -1,4 +1,4 @@
-import os
+п»їimport os
 import logging
 import random
 import requests
@@ -6,19 +6,19 @@ from bs4 import BeautifulSoup
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-TOKEN = os.environ.get("TOKEN")  # Токен из переменной окружения
+TOKEN = os.environ.get("TOKEN")  # РўРѕРєРµРЅ РёР· РїРµСЂРµРјРµРЅРЅРѕР№ РѕРєСЂСѓР¶РµРЅРёСЏ
 
 logging.basicConfig(level=logging.INFO)
 
 genre_links = []
 
-keyboard = [["?? Рандомный жанр"]]
+keyboard = [["рџЋІ Р Р°РЅРґРѕРјРЅС‹Р№ Р¶Р°РЅСЂ"]]
 markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Привет! Отправь мне число от 1 до 6280, и я пришлю Spotify-плейлист этого жанра ??\n"
-        "Или нажми кнопку ?? для случайного жанра!",
+        "РџСЂРёРІРµС‚! РћС‚РїСЂР°РІСЊ РјРЅРµ С‡РёСЃР»Рѕ РѕС‚ 1 РґРѕ 6280, Рё СЏ РїСЂРёС€Р»СЋ Spotify-РїР»РµР№Р»РёСЃС‚ СЌС‚РѕРіРѕ Р¶Р°РЅСЂР° рџЋµ\n"
+        "РР»Рё РЅР°Р¶РјРё РєРЅРѕРїРєСѓ рџЋІ РґР»СЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ Р¶Р°РЅСЂР°!",
         reply_markup=markup
     )
 
@@ -30,15 +30,15 @@ def load_genres():
         r.raise_for_status()
         soup = BeautifulSoup(r.text, 'html.parser')
         links = soup.select("div#scan a")
-        logging.info(f"Загружено жанров: {len(links)}")
+        logging.info(f"Р—Р°РіСЂСѓР¶РµРЅРѕ Р¶Р°РЅСЂРѕРІ: {len(links)}")
         return links
     except Exception as e:
-        logging.error(f"Ошибка загрузки жанров: {e}")
+        logging.error(f"РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё Р¶Р°РЅСЂРѕРІ: {e}")
         return []
 
 def get_spotify_link(index):
     if not genre_links:
-        return "Список жанров ещё не загружен."
+        return "РЎРїРёСЃРѕРє Р¶Р°РЅСЂРѕРІ РµС‰С‘ РЅРµ Р·Р°РіСЂСѓР¶РµРЅ."
     try:
         link = genre_links[index - 1]['href']
         genre_url = "https://everynoise.com/" + link
@@ -48,32 +48,32 @@ def get_spotify_link(index):
         soup = BeautifulSoup(r.text, 'html.parser')
         spotify = soup.find('a', href=lambda h: h and "spotify.com/playlist" in h)
         if spotify:
-            return f"?? Плейлист жанра №{index}:\n{spotify['href']}"
+            return f"рџЋ§ РџР»РµР№Р»РёСЃС‚ Р¶Р°РЅСЂР° в„–{index}:\n{spotify['href']}"
         else:
-            return "Плейлист не найден ??"
+            return "РџР»РµР№Р»РёСЃС‚ РЅРµ РЅР°Р№РґРµРЅ рџў"
     except IndexError:
-        return "Число вне допустимого диапазона (1–6280)."
+        return "Р§РёСЃР»Рѕ РІРЅРµ РґРѕРїСѓСЃС‚РёРјРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° (1вЂ“6280)."
     except Exception as e:
-        logging.error(f"Ошибка получения плейлиста: {e}")
-        return "Произошла ошибка при получении плейлиста."
+        logging.error(f"РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїР»РµР№Р»РёСЃС‚Р°: {e}")
+        return "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё РїРѕР»СѓС‡РµРЅРёРё РїР»РµР№Р»РёСЃС‚Р°."
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
-    if "рандом" in text.lower() or text == "?? Рандомный жанр":
+    if "СЂР°РЅРґРѕРј" in text.lower() or text == "рџЋІ Р Р°РЅРґРѕРјРЅС‹Р№ Р¶Р°РЅСЂ":
         index = random.randint(1, len(genre_links))
         link = get_spotify_link(index)
         await update.message.reply_text(link)
         return
 
     if not text.isdigit():
-        await update.message.reply_text("Пожалуйста, отправьте число от 1 до 6280 или нажмите ??.")
+        await update.message.reply_text("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РѕС‚РїСЂР°РІСЊС‚Рµ С‡РёСЃР»Рѕ РѕС‚ 1 РґРѕ 6280 РёР»Рё РЅР°Р¶РјРёС‚Рµ рџЋІ.")
         return
     index = int(text)
     if not (1 <= index <= 6280):
-        await update.message.reply_text("Число должно быть от 1 до 6280.")
+        await update.message.reply_text("Р§РёСЃР»Рѕ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕС‚ 1 РґРѕ 6280.")
         return
 
-    await update.message.reply_text("? Ищу плейлист...")
+    await update.message.reply_text("вЏі РС‰Сѓ РїР»РµР№Р»РёСЃС‚...")
     link = get_spotify_link(index)
     await update.message.reply_text(link)
 
@@ -81,11 +81,11 @@ def main():
     global genre_links
     genre_links = load_genres()
     if not genre_links:
-        print("Не удалось загрузить список жанров. Попробуйте позже.")
+        print("РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ СЃРїРёСЃРѕРє Р¶Р°РЅСЂРѕРІ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ.")
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    print("Бот запущен. Нажмите Ctrl+C для остановки.")
+    print("Р‘РѕС‚ Р·Р°РїСѓС‰РµРЅ. РќР°Р¶РјРёС‚Рµ Ctrl+C РґР»СЏ РѕСЃС‚Р°РЅРѕРІРєРё.")
     app.run_polling()
 
 if __name__ == "__main__":
