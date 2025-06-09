@@ -24,12 +24,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def load_genres():
     url = "https://everynoise.com/everynoise1d.html"
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/113.0.0.0 Safari/537.36"
+    }
     try:
         r = requests.get(url, headers=headers, timeout=10)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, 'html.parser')
-        links = soup.select("div#scan a")
+        table = soup.find("table")
+        if not table:
+            logging.error("Таблица с жанрами не найдена")
+            return []
+        links = table.find_all("a")
         logging.info(f"Загружено жанров: {len(links)}")
         return links
     except Exception as e:
